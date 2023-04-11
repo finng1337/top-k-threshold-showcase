@@ -6,7 +6,7 @@ SECRET_KEY = 'django-insecure-un=e+1*awa6w3rv-$uoprv$jajt@v@zq4zhbqp6ecrewb9u4n0
 
 DEBUG = True
 
-ALLOWED_HOSTS = ['localhost']
+ALLOWED_HOSTS = ['127.0.0.1']
 
 
 INSTALLED_APPS = [
@@ -16,6 +16,8 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'rest_framework',
+    'processor',
 ]
 
 MIDDLEWARE = [
