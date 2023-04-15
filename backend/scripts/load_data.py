@@ -1,5 +1,4 @@
 from processor.models import Processor
-from decimal import Decimal
 import csv
 
 def run():
@@ -13,18 +12,18 @@ def run():
             processor = Processor(
                 name=row[0],
                 cores=row[1],
-                cores_normalized=Decimal(row[2].replace(',', '.')),
+                cores_normalized=row[2].replace(',', '.'),
                 threads=row[3],
-                threads_normalized=Decimal(row[4].replace(',', '.')),
+                threads_normalized=row[4].replace(',', '.'),
                 frequency=row[5],
-                frequency_normalized=Decimal(row[6].replace(',', '.')),
+                frequency_normalized=row[6].replace(',', '.'),
                 boost_frequency=row[7],
-                boost_frequency_normalized=Decimal(row[8].replace(',', '.')),
+                boost_frequency_normalized=row[8].replace(',', '.'),
                 cache=row[9],
-                cache_normalized=Decimal(row[10].replace(',', '.')),
+                cache_normalized=row[10].replace(',', '.'),
                 lithography=row[11],
-                lithography_normalized=Decimal(row[12].replace(',', '.')),
+                lithography_normalized=row[12].replace(',', '.'),
                 tdp=row[13],
-                tdp_normalized=Decimal(row[14].replace(',', '.')),
+                tdp_normalized=row[14].replace(',', '.'),
             )
             processor.save()
