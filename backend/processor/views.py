@@ -1,7 +1,8 @@
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
-from .algorithms import get_k_objects
+from .models import Processor
+from .algorithms import get_k_naive, get_k_treshold, get_field_index, get_aggr_func
 from .serializers import ProcessorSerializer
 import time
 
@@ -12,9 +13,24 @@ class ProcessorListView(APIView):
         aggrFunc = self.request.query_params.get('aggr_func')
         k = self.request.query_params.get('k')
 
-        start = time.time()
-        rowsRead, processors = get_k_objects(int(k), fields, algorithm, aggrFunc)
-        elapsedTime = time.time() - start
+        rowsRead, processors = 0, []
+        start, elapsedTime = 0, 0
+
+        match algorithm:
+            case 'naive':
+                allProcessors = list(Processor.objects.all())
+                start = time.time()
+                rowsRead, processors = get_k_naive(int(k), allProcessors, fields, get_aggr_func(aggrFunc))
+                elapsedTime = time.time() - start
+            case 'treshold':
+                fieldsIndexes = {}
+                for field in fields:
+                    fieldName, order = field.split('_', 1)
+                    fieldsIndexes[fieldName + '_normalized'] = get_field_index(fieldName, order)
+                start = time.time()
+                rowsRead, processors = get_k_treshold(int(k), fieldsIndexes, fields, get_aggr_func(aggrFunc))
+                elapsedTime = time.time() - start
+
         serializedProcs = ProcessorSerializer(processors, many=True)
 
         return Response({
