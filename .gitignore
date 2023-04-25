@@ -1,3 +1,4 @@
 .idea
 .venv
 backend/processor/migrations
+frontend/node_modules
