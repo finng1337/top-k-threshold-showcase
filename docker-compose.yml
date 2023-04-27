@@ -9,6 +9,13 @@ services:
       - ./backend:/backend
     depends_on:
       - db
+  frontend:
+    build: ./frontend
+    command: npm run dev
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./frontend:/frontend
   db:
     image: postgres:13
     volumes:
