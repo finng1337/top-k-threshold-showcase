@@ -49,25 +49,25 @@ def get_proc_rank(processor: Processor, fields: list[tuple[str, str]], aggr_func
         fieldValues.append(fieldValue)
     return aggr_func(fieldValues)
 
-def get_field_index(field: str, order: str) -> list:
+def get_field_index(field: str, data_set: str, order: str) -> list:
     fieldName = field + '_normalized'
     orderBy = fieldName if order == 'asc' else '-' + fieldName
 
     match field:
         case 'cores':
-            return list(Processor.objects.all().order_by(orderBy))
+            return list(Processor.objects.filter(type=data_set).order_by(orderBy))
         case 'threads':
-            return list(Processor.objects.all().order_by(orderBy))
+            return list(Processor.objects.filter(type=data_set).order_by(orderBy))
         case 'frequency':
-            return list(Processor.objects.all().order_by(orderBy))
+            return list(Processor.objects.filter(type=data_set).order_by(orderBy))
         case 'boost_frequency':
-            return list(Processor.objects.all().order_by(orderBy))
+            return list(Processor.objects.filter(type=data_set).order_by(orderBy))
         case 'cache':
-            return list(Processor.objects.all().order_by(orderBy))
+            return list(Processor.objects.filter(type=data_set).order_by(orderBy))
         case 'lithography':
-            return list(Processor.objects.all().order_by(orderBy))
+            return list(Processor.objects.filter(type=data_set).order_by(orderBy))
         case 'tdp':
-            return list(Processor.objects.all().order_by(orderBy))
+            return list(Processor.objects.filter(type=data_set).order_by(orderBy))
 
 def get_aggr_func(aggr_func: str) -> callable:
     match aggr_func:

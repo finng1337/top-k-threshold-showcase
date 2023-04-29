@@ -5,6 +5,7 @@ class ProcessorSerializer(serializers.ModelSerializer):
     class Meta:
         model = Processor
         fields = [
+            'pk',
             'name',
             'cores',
             'cores_normalized',

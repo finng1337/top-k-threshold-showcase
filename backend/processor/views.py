@@ -9,6 +9,7 @@ import time
 class ProcessorListView(APIView):
     def get(self, request, *args, **kwargs):
         fields = self.request.query_params.getlist('fields')
+        dataSet = self.request.query_params.get('data')
         algorithm = self.request.query_params.get('algorithm')
         aggrFunc = self.request.query_params.get('aggr_func')
         k = self.request.query_params.get('k')
@@ -18,7 +19,7 @@ class ProcessorListView(APIView):
 
         match algorithm:
             case 'naive':
-                allProcessors = list(Processor.objects.all())
+                allProcessors = list(Processor.objects.filter(type__exact=dataSet))
                 start = time.time()
                 rowsRead, processors = get_k_naive(int(k), allProcessors, fields, get_aggr_func(aggrFunc))
                 elapsedTime = time.time() - start
@@ -26,7 +27,7 @@ class ProcessorListView(APIView):
                 fieldsIndexes = {}
                 for field in fields:
                     fieldName, order = field.split('_', 1)
-                    fieldsIndexes[fieldName + '_normalized'] = get_field_index(fieldName, order)
+                    fieldsIndexes[fieldName + '_normalized'] = get_field_index(fieldName, dataSet, order)
                 start = time.time()
                 rowsRead, processors = get_k_treshold(int(k), fieldsIndexes, fields, get_aggr_func(aggrFunc))
                 elapsedTime = time.time() - start

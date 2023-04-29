@@ -36,7 +36,7 @@ def run():
         next(reader)
         for row in reader:
             if(i % 1000 == 0):
-                print('Imported: ' + i)
+                print('Imported: ' + str(i))
             i += 1
             processor = Processor(
                 type='experiment',
