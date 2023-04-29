@@ -17,20 +17,30 @@ class ProcessorListView(APIView):
         rowsRead, processors = 0, []
         start, elapsedTime = 0, 0
 
-        match algorithm:
-            case 'naive':
-                allProcessors = list(Processor.objects.filter(type__exact=dataSet))
-                start = time.time()
-                rowsRead, processors = get_k_naive(int(k), allProcessors, fields, get_aggr_func(aggrFunc))
-                elapsedTime = time.time() - start
-            case 'treshold':
-                fieldsIndexes = {}
-                for field in fields:
-                    fieldName, order = field.split('_', 1)
-                    fieldsIndexes[fieldName + '_normalized'] = get_field_index(fieldName, dataSet, order)
-                start = time.time()
-                rowsRead, processors = get_k_treshold(int(k), fieldsIndexes, fields, get_aggr_func(aggrFunc))
-                elapsedTime = time.time() - start
+        if fields != []:
+            match algorithm:
+                case 'naive':
+                    allProcessors = list(Processor.objects.filter(type__exact=dataSet))
+                    start = time.time()
+                    rowsRead, processors = get_k_naive(int(k), allProcessors, fields, get_aggr_func(aggrFunc))
+                    elapsedTime = time.time() - start
+                case 'treshold':
+                    fieldsIndexes = {}
+                    for field in fields:
+                        fieldName, order = field.split('_', 1)
+                        fieldsIndexes[fieldName + '_normalized'] = get_field_index(fieldName, dataSet, order)
+                    start = time.time()
+                    rowsRead, processors = get_k_treshold(int(k), fieldsIndexes, fields, get_aggr_func(aggrFunc))
+                    elapsedTime = time.time() - start
+        else:
+            serializedProcs = ProcessorSerializer(list(Processor.objects.filter(type__exact=dataSet))[:int(k)], many=True)
+
+            return Response({
+                'time': 0,
+                'rows_read': 0,
+                'data': serializedProcs.data
+            }, status=status.HTTP_200_OK)
+
 
         serializedProcs = ProcessorSerializer(processors, many=True)
 
