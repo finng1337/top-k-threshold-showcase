@@ -5,7 +5,7 @@ from .models import Processor
 def get_k_treshold(k: int, fields_indexes: dict[str, list], fields: list[str], aggr_func: callable) -> tuple[int,list]:
     fieldsList = []
     for field in fields:
-        fieldName, order = field.split('_', 1)
+        fieldName, order = field.rsplit('_', 1)
         fieldsList.append((fieldName + '_normalized', order))
     seenIds = set()
     processorRank = []
@@ -33,7 +33,7 @@ def get_k_naive(k: int, processors: list, fields: list[str], aggr_func: callable
     fieldsList = []
 
     for field in fields:
-        fieldName, order = field.split('_', 1)
+        fieldName, order = field.rsplit('_', 1)
         fieldsList.append((fieldName + '_normalized', order))
 
     for processor in processors:

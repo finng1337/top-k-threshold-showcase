@@ -27,7 +27,7 @@ class ProcessorListView(APIView):
                 case 'treshold':
                     fieldsIndexes = {}
                     for field in fields:
-                        fieldName, order = field.split('_', 1)
+                        fieldName, order = field.rsplit('_', 1)
                         fieldsIndexes[fieldName + '_normalized'] = get_field_index(fieldName, dataSet, order)
                     start = time.time()
                     rowsRead, processors = get_k_treshold(int(k), fieldsIndexes, fields, get_aggr_func(aggrFunc))
