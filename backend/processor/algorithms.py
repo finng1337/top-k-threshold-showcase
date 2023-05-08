@@ -26,7 +26,7 @@ def get_k_treshold(k: int, fields_indexes: dict[str, list], fields: list[str], a
         treshold = aggr_func(tresholdValues)
         if processorRank[0][0] >= treshold and len(processorRank) >= k:
             return readRows, np.array(heapq.nlargest(k, processorRank))[:, 1]
-    return 0, []
+    return readRows, np.array(heapq.nlargest(k, processorRank))[:, 1]
 
 def get_k_naive(k: int, processors: list, fields: list[str], aggr_func: callable) -> tuple[int,list]:
     processorsRank = []
