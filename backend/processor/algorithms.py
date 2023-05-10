@@ -1,22 +1,25 @@
+import operator
 import numpy as np
 import heapq
 from .models import Processor
 
-def get_k_treshold(k: int, fields_indexes: dict[str, list], fields: list[str], aggr_func: callable) -> tuple[int,list]:
+def get_k_treshold(k: int, data: list[Processor], fields: list[str], aggr_func: callable) -> tuple[int,list[Processor]]:
     fieldsList = []
+    fieldsIndexes = {}
     for field in fields:
         fieldName, order = field.rsplit('_', 1)
         fieldsList.append((fieldName + '_normalized', order))
+        fieldsIndexes[fieldName + '_normalized'] = get_field_index(fieldName, data, order)
     seenIds = set()
     processorRank = []
     readRows = 0
     heapq.heapify(processorRank)
 
-    for i in range(len(fields_indexes[fieldsList[0][0]])):
+    for i in range(len(fieldsIndexes[fieldsList[0][0]])):
         readRows += 1
         tresholdValues = []
         for field in fieldsList:
-            processor = fields_indexes[field[0]][i]
+            processor = fieldsIndexes[field[0]][i]
             tresholdValues.append(getattr(processor, field[0]) if field[1] == 'desc' else abs(1 - getattr(processor, field[0])))
             if processor.id not in seenIds:
                 seenIds.add(processor.id)
@@ -28,7 +31,7 @@ def get_k_treshold(k: int, fields_indexes: dict[str, list], fields: list[str], a
             return readRows, np.array(heapq.nlargest(k, processorRank))[:, 1]
     return readRows, np.array(heapq.nlargest(k, processorRank))[:, 1]
 
-def get_k_naive(k: int, processors: list, fields: list[str], aggr_func: callable) -> tuple[int,list]:
+def get_k_naive(k: int, processors: list[Processor], fields: list[str], aggr_func: callable) -> tuple[int,list[Processor]]:
     processorsRank = []
     fieldsList = []
 
@@ -49,25 +52,11 @@ def get_proc_rank(processor: Processor, fields: list[tuple[str, str]], aggr_func
         fieldValues.append(fieldValue)
     return aggr_func(fieldValues)
 
-def get_field_index(field: str, data_set: str, order: str) -> list:
+def get_field_index(field: str, data_set: list[Processor], order: str) -> list[Processor]:
     fieldName = field + '_normalized'
-    orderBy = fieldName if order == 'asc' else '-' + fieldName
+    reverse = True if order == 'desc' else False
 
-    match field:
-        case 'cores':
-            return list(Processor.objects.filter(type=data_set).order_by(orderBy))
-        case 'threads':
-            return list(Processor.objects.filter(type=data_set).order_by(orderBy))
-        case 'frequency':
-            return list(Processor.objects.filter(type=data_set).order_by(orderBy))
-        case 'boost_frequency':
-            return list(Processor.objects.filter(type=data_set).order_by(orderBy))
-        case 'cache':
-            return list(Processor.objects.filter(type=data_set).order_by(orderBy))
-        case 'lithography':
-            return list(Processor.objects.filter(type=data_set).order_by(orderBy))
-        case 'tdp':
-            return list(Processor.objects.filter(type=data_set).order_by(orderBy))
+    return sorted(data_set, key=operator.attrgetter(fieldName), reverse=reverse)
 
 def get_aggr_func(aggr_func: str) -> callable:
     match aggr_func:

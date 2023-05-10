@@ -1,28 +1,29 @@
 from django.db import models
 
 class Processor(models.Model):
-    type = models.CharField(max_length=64)
-    name = models.CharField(max_length=128, default='')
-    cores = models.IntegerField(blank=True, null=True)
     cores_normalized = models.FloatField()
-    threads = models.IntegerField(blank=True, null=True)
     threads_normalized = models.FloatField()
-    frequency = models.IntegerField(blank=True, null=True)
     frequency_normalized = models.FloatField()
-    boost_frequency = models.IntegerField(blank=True, null=True)
     boost_frequency_normalized = models.FloatField()
-    cache = models.IntegerField(blank=True, null=True)
     cache_normalized = models.FloatField()
-    lithography = models.IntegerField(blank=True, null=True)
     lithography_normalized = models.FloatField()
-    tdp = models.IntegerField(blank=True, null=True)
     tdp_normalized = models.FloatField()
 
     def __str__(self):
-        return self.name
+        return self.pk
 
     def __lt__(self, other):
         return self.pk < other.pk
 
     def __gt__(self, other):
         return self.pk > other.pk
+
+class RealProcessor(Processor):
+    name = models.CharField(max_length=128, default='')
+    cores = models.IntegerField()
+    threads = models.IntegerField()
+    frequency = models.IntegerField()
+    boost_frequency = models.IntegerField()
+    cache = models.IntegerField()
+    lithography = models.IntegerField()
+    tdp = models.IntegerField()

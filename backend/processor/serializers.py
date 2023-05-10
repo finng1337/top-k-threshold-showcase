@@ -1,9 +1,9 @@
 from rest_framework import serializers
-from .models import Processor
+from .models import RealProcessor
 
 class ProcessorSerializer(serializers.ModelSerializer):
     class Meta:
-        model = Processor
+        model = RealProcessor
         fields = [
             'pk',
             'name',

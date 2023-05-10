@@ -1,7 +1,8 @@
-from processor.models import Processor
+from processor.models import Processor, RealProcessor
 import csv
 
 def run():
+    RealProcessor.objects.all().delete()
     Processor.objects.all().delete()
 
     with open('datasets/amd.csv') as file:
@@ -9,8 +10,7 @@ def run():
         next(reader)
 
         for row in reader:
-            processor = Processor(
-                type='real',
+            processor = RealProcessor(
                 name=row[0],
                 cores=row[1],
                 cores_normalized=row[2],
@@ -35,11 +35,10 @@ def run():
         reader = csv.reader(file)
         next(reader)
         for row in reader:
-            if(i % 1000 == 0):
+            if i % 1000 == 0:
                 print('Imported: ' + str(i))
             i += 1
             processor = Processor(
-                type='experiment',
                 cores_normalized=row[0],
                 threads_normalized=row[1],
                 frequency_normalized=row[2],

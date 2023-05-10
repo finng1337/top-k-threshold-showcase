@@ -1,8 +1,8 @@
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
-from .models import Processor
-from .algorithms import get_k_naive, get_k_treshold, get_field_index, get_aggr_func
+from .models import Processor, RealProcessor
+from .algorithms import get_k_naive, get_k_treshold, get_aggr_func
 from .serializers import ProcessorSerializer
 import time
 
@@ -15,25 +15,23 @@ class ProcessorListView(APIView):
         k = self.request.query_params.get('k')
 
         rowsRead, processors = 0, []
-        start, elapsedTime = 0, 0
 
+        if dataSet == 'real':
+            data = list(RealProcessor.objects.all())
+        else:
+            data = list(Processor.objects.all())
+
+        start = time.time()
         if fields:
             match algorithm:
                 case 'naive':
-                    allProcessors = list(Processor.objects.filter(type__exact=dataSet))
-                    start = time.time()
-                    rowsRead, processors = get_k_naive(int(k), allProcessors, fields, get_aggr_func(aggrFunc))
-                    elapsedTime = time.time() - start
+                    rowsRead, processors = get_k_naive(int(k), data, fields, get_aggr_func(aggrFunc))
                 case 'treshold':
-                    fieldsIndexes = {}
-                    for field in fields:
-                        fieldName, order = field.rsplit('_', 1)
-                        fieldsIndexes[fieldName + '_normalized'] = get_field_index(fieldName, dataSet, order)
-                    start = time.time()
-                    rowsRead, processors = get_k_treshold(int(k), fieldsIndexes, fields, get_aggr_func(aggrFunc))
-                    elapsedTime = time.time() - start
+                    rowsRead, processors = get_k_treshold(int(k), data, fields, get_aggr_func(aggrFunc))
         else:
-            processors = list(Processor.objects.filter(type__exact=dataSet))[:int(k)]
+            processors = data[:int(k)]
+
+        elapsedTime = time.time() - start
 
         if dataSet == 'experiment':
             processors = []
