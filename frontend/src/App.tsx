@@ -40,6 +40,7 @@ interface Fields {
 interface FieldProps {
     name: string;
     onChange: (string) => void;
+    disabled: boolean;
 }
 
 function App() {
@@ -59,8 +60,9 @@ function App() {
         lithography: '',
         tdp: ''
     });
+    const [loading, setLoading] = React.useState<boolean>(false);
 
-    useEffect(() => handleSubmit(), [sortingFields]);
+    useEffect(() => {handleSubmit();}, [sortingFields]);
 
     const handleFormChange = (ev: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
         setFormValues({
@@ -69,7 +71,7 @@ function App() {
         });
     };
 
-    const handleSubmit = (ev?: React.FormEvent) => {
+    const handleSubmit = async (ev?: React.FormEvent) => {
         ev?.preventDefault();
 
         let queryParams = '';
@@ -83,13 +85,15 @@ function App() {
         queryParams += `algorithm=${formValues.algorithm}&`;
         queryParams += `aggr_func=${formValues.aggrFunc}&`;
         queryParams += `k=${formValues.k}`;
-        axios.get('http://localhost:8000/processors/?' + queryParams).then(response => {
+        setLoading(true);
+        await axios.get('http://localhost:8000/processors/?' + queryParams).then(response => {
            setResponse({
                time: response.data.time,
                rows: response.data.rows_read,
                processors: response.data.data
            });
         });
+        setLoading(false);
     };
     
     const handleFieldChange = (field: string, order: string) => {
@@ -104,28 +108,28 @@ function App() {
         <div className='container'>
             <form onSubmit={handleSubmit}>
                     <label>
-                        <input type="number" name="k" value={formValues.k} onChange={handleFormChange}/>
+                        <input type="number" name="k" value={formValues.k} onChange={handleFormChange} disabled={loading}/>
                     </label>
                     <label>
-                        <select name="data" value={formValues.data} onChange={handleFormChange}>
+                        <select name="data" value={formValues.data} onChange={handleFormChange} disabled={loading}>
                             <option value="real">Real</option>
                             <option value="experiment">Experiment</option>
                         </select>
                     </label>
                     <label>
-                        <select name="algorithm" value={formValues.algorithm} onChange={handleFormChange}>
+                        <select name="algorithm" value={formValues.algorithm} onChange={handleFormChange} disabled={loading}>
                             <option value="naive">Naive</option>
                             <option value="treshold">Treshold</option>
                         </select>
                     </label>
                     <label>
-                        <select name="aggrFunc" value={formValues.aggrFunc} onChange={handleFormChange}>
+                        <select name="aggrFunc" value={formValues.aggrFunc} onChange={handleFormChange} disabled={loading}>
                             <option value="max">Max</option>
                             <option value="min">Min</option>
                             <option value="sum">Sum</option>
                         </select>
                     </label>
-                    <button type="submit">Submit</button>
+                    <button type="submit" disabled={loading}>Submit</button>
                 </form>
             <div>
                 Time: {response?.time}
@@ -137,13 +141,13 @@ function App() {
                 <div className='name'>
                     Name
                 </div>
-                <Field name='Cores' onChange={handleFieldChange.bind(this, 'cores')} />
-                <Field name='Threads' onChange={handleFieldChange.bind(this, 'threads')} />
-                <Field name='Frequency' onChange={handleFieldChange.bind(this, 'frequency')} />
-                <Field name='Boost frequency' onChange={handleFieldChange.bind(this, 'boost_frequency')} />
-                <Field name='Cache' onChange={handleFieldChange.bind(this, 'cache')} />
-                <Field name='Lithography' onChange={handleFieldChange.bind(this, 'lithography')} />
-                <Field name='TDP' onChange={handleFieldChange.bind(this, 'tdp')} />
+                <Field name='Cores' onChange={handleFieldChange.bind(this, 'cores')} disabled={loading} />
+                <Field name='Threads' onChange={handleFieldChange.bind(this, 'threads')} disabled={loading} />
+                <Field name='Frequency' onChange={handleFieldChange.bind(this, 'frequency')} disabled={loading} />
+                <Field name='Boost frequency' onChange={handleFieldChange.bind(this, 'boost_frequency')} disabled={loading} />
+                <Field name='Cache' onChange={handleFieldChange.bind(this, 'cache')} disabled={loading} />
+                <Field name='Lithography' onChange={handleFieldChange.bind(this, 'lithography')} disabled={loading} />
+                <Field name='TDP' onChange={handleFieldChange.bind(this, 'tdp')} disabled={loading} />
             {response?.processors.map(processor => (
                 <React.Fragment key={processor.pk}>
                     <div className='name'>
@@ -197,7 +201,7 @@ function Field(props: FieldProps) {
     };
 
     return (
-        <div onClick={handleClick} className='field'>
+        <div onClick={!props.disabled ? handleClick : () => {}} className={props.disabled ? 'field disabled' : 'field'}>
             {props.name} {order !== 'desc' && '\u25B4'} {order !== 'asc' && '\u25BE'}
         </div>
     );

@@ -22,4 +22,7 @@ class Processor(models.Model):
         return self.name
 
     def __lt__(self, other):
-        return self.name < other.name
+        return self.pk < other.pk
+
+    def __gt__(self, other):
+        return self.pk > other.pk

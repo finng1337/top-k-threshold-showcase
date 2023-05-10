@@ -17,7 +17,7 @@ class ProcessorListView(APIView):
         rowsRead, processors = 0, []
         start, elapsedTime = 0, 0
 
-        if fields != []:
+        if fields:
             match algorithm:
                 case 'naive':
                     allProcessors = list(Processor.objects.filter(type__exact=dataSet))
@@ -33,17 +33,12 @@ class ProcessorListView(APIView):
                     rowsRead, processors = get_k_treshold(int(k), fieldsIndexes, fields, get_aggr_func(aggrFunc))
                     elapsedTime = time.time() - start
         else:
-            serializedProcs = ProcessorSerializer(list(Processor.objects.filter(type__exact=dataSet))[:int(k)], many=True)
+            processors = list(Processor.objects.filter(type__exact=dataSet))[:int(k)]
 
-            return Response({
-                'time': 0,
-                'rows_read': 0,
-                'data': serializedProcs.data
-            }, status=status.HTTP_200_OK)
-
+        if dataSet == 'experiment':
+            processors = []
 
         serializedProcs = ProcessorSerializer(processors, many=True)
-
         return Response({
             'time': elapsedTime,
             'rows_read': rowsRead,
