@@ -4,7 +4,7 @@ import csv
 def run():
     RealProcessor.objects.all().delete()
     Processor.objects.all().delete()
-
+    """
     with open('datasets/amd.csv') as file:
         reader = csv.reader(file)
         next(reader)
@@ -29,6 +29,7 @@ def run():
             )
             processor.save()
     print('Real processors imported')
+    """
     print('Importing generated processors')
     with open('datasets/experiment.csv') as file:
         i = 0
