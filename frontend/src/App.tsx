@@ -119,7 +119,7 @@ function App() {
                     <label>
                         <select name="algorithm" value={formValues.algorithm} onChange={handleFormChange} disabled={loading}>
                             <option value="naive">Naive</option>
-                            <option value="threshold">threshold</option>
+                            <option value="threshold">Threshold</option>
                         </select>
                     </label>
                     <label>
