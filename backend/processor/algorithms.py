@@ -3,7 +3,7 @@ import numpy as np
 import heapq
 from .models import Processor
 
-def get_k_treshold(k: int, data: list[Processor], fields: list[str], aggr_func: callable) -> tuple[int,list[Processor]]:
+def get_k_threshold(k: int, data: list[Processor], fields: list[str], aggr_func: callable) -> tuple[int,list[Processor]]:
     fieldsList = []
     fieldsIndexes = {}
     for field in fields:
@@ -17,17 +17,17 @@ def get_k_treshold(k: int, data: list[Processor], fields: list[str], aggr_func: 
 
     for i in range(len(fieldsIndexes[fieldsList[0][0]])):
         readRows += 1
-        tresholdValues = []
+        thresholdValues = []
         for field in fieldsList:
             processor = fieldsIndexes[field[0]][i]
-            tresholdValues.append(getattr(processor, field[0]) if field[1] == 'desc' else abs(1 - getattr(processor, field[0])))
+            thresholdValues.append(getattr(processor, field[0]) if field[1] == 'desc' else abs(1 - getattr(processor, field[0])))
             if processor.id not in seenIds:
                 seenIds.add(processor.id)
                 heapq.heappush(processorRank, (get_proc_rank(processor, fieldsList, aggr_func), processor))
                 if len(processorRank) > k:
                     heapq.heappop(processorRank)
-        treshold = aggr_func(tresholdValues)
-        if processorRank[0][0] >= treshold and len(processorRank) >= k:
+        threshold = aggr_func(thresholdValues)
+        if processorRank[0][0] >= threshold and len(processorRank) >= k:
             return readRows, np.array(heapq.nlargest(k, processorRank))[:, 1]
     return readRows, np.array(heapq.nlargest(k, processorRank))[:, 1]
 
@@ -66,4 +66,3 @@ def get_aggr_func(aggr_func: str) -> callable:
             return max
         case 'min':
             return min
-        #fixme: add avg option
